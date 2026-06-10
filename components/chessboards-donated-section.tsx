@@ -3,6 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import { motion, useInView } from "framer-motion";
 import { Globe2 } from "lucide-react";
+import { Boxes } from "@/components/ui/background-tiles";
 import { gsap } from "gsap";
 
 function SolariDigit({ target, delay }: { target: string; delay: number }) {
@@ -77,7 +78,8 @@ function SolariCounter({ target }: { target: number }) {
 export function ChessboardsDonatedSection() {
   return (
     <section className="relative py-24 overflow-hidden bg-black min-h-screen">
-      <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 text-center">
+      <Boxes className="opacity-20" />
+      <div className="relative z-10 mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 text-center">
         <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}

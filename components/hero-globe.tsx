@@ -96,6 +96,7 @@ function WorldMap({ radius }: { radius: number }) {
 function PawnPiece() {
   const meshRef = useRef<THREE.Group>(null);
   const pawnObj = useLoader(OBJLoader, "/3D-objects/pawn-3d-object.obj");
+  const elapsedRef = useRef(0);
 
   const geometry = useMemo(() => {
     let merged: THREE.BufferGeometry[] = [];
@@ -111,11 +112,12 @@ function PawnPiece() {
     return result;
   }, [pawnObj]);
 
-  useFrame((state) => {
+  useFrame((_, delta) => {
+    elapsedRef.current += delta;
     if (meshRef.current) {
-      const breathe = 1 + Math.sin(state.clock.elapsedTime * 0.8) * 0.05;
+      const breathe = 1 + Math.sin(elapsedRef.current * 0.8) * 0.05;
       meshRef.current.scale.setScalar(breathe * 0.3);
-      meshRef.current.rotation.y = state.clock.elapsedTime * 0.5;
+      meshRef.current.rotation.y = elapsedRef.current * 0.5;
     }
   });
 
@@ -287,6 +289,7 @@ function FlagMarker({ lat, lng, country, globeRadius }: FlagMarkerProps) {
   const groupRef = useRef<THREE.Group>(null);
   const flagRef = useRef<THREE.Group>(null);
   const texture = useTexture(flagTexturePaths[country]);
+  const elapsedRef = useRef(0);
 
   const surfacePos = useMemo(
     () => latLngToVector3(lat, lng, globeRadius + 0.05),
@@ -309,11 +312,12 @@ function FlagMarker({ lat, lng, country, globeRadius }: FlagMarkerProps) {
 
   const visualRef = useRef<THREE.Group>(null);
 
-  useFrame((state) => {
+  useFrame((_, delta) => {
+    elapsedRef.current += delta;
     if (flagRef.current && groupRef.current && visualRef.current) {
       flagRef.current.rotation.z =
         Math.sin(
-          state.clock.elapsedTime * 2 +
+          elapsedRef.current * 2 +
             (country === "nepal" ? 0 : Math.PI)
         ) * 0.05;
 
@@ -368,6 +372,7 @@ function Globe({
 }) {
   const globeRef = useRef<THREE.Group>(null);
   const gridRef = useRef<THREE.Group>(null);
+  const elapsedRef = useRef(0);
 
   const globeRadius = 1.5;
 
@@ -424,9 +429,10 @@ function Globe({
     return lines;
   }, [globeRadius]);
 
-  useFrame((state) => {
+  useFrame((_, delta) => {
+    elapsedRef.current += delta;
     if (globeRef.current) {
-      globeRef.current.rotation.y = state.clock.elapsedTime * 0.1;
+      globeRef.current.rotation.y = elapsedRef.current * 0.1;
 
       const targetRotationX = mousePosition.y * 0.2;
       const targetRotationZ = mousePosition.x * 0.1;

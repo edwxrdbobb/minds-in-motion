@@ -13,8 +13,8 @@ export default function Home() {
       <Navbar />
       <HeroSection />
       {/* Sections */}
-      <AboutSection />
       <ChessboardsDonatedSection />
+      <AboutSection />
       <ProgramsSection />
       <GallerySection />
       <ContactSection />

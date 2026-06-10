@@ -227,6 +227,7 @@ export function ContactSection() {
                       onChange={handleChange}
                       placeholder="Tell us more about your inquiry..."
                       rows={5}
+                      suppressHydrationWarning
                       className={`bg-gray-50 border-gray-200 focus:border-gray-400 resize-none ${
                         errors.message ? "border-destructive" : ""
                       }`}

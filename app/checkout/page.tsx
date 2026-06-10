@@ -145,7 +145,7 @@ export default function CheckoutPage() {
                                 : "bg-gray-50 text-gray-600 hover:bg-gray-100 hover:text-gray-900 border border-gray-100"
                             }`}
                           >
-                            ${donationAmount}
+                            £{donationAmount}
                           </button>
                         ))}
                       </div>
@@ -154,7 +154,7 @@ export default function CheckoutPage() {
                     <motion.div variants={fadeUp} className="mt-3">
                       <div className="relative">
                         <span className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400 text-sm font-medium">
-                          $
+                          £
                         </span>
                         <Input
                           type="number"
@@ -248,7 +248,7 @@ export default function CheckoutPage() {
                 <div className="bg-gray-50/80 rounded-2xl p-6 sm:p-8 space-y-5 mb-8 border border-gray-100">
                   <div className="flex items-center justify-between pb-4 border-b border-gray-200">
                     <span className="text-sm text-gray-500 font-medium">Donation amount</span>
-                    <span className="text-2xl font-bold text-gray-900">${finalAmount}</span>
+                    <span className="text-2xl font-bold text-gray-900">£{finalAmount}</span>
                   </div>
                   <div className="space-y-3">
                     <div className="flex justify-between text-sm">
@@ -346,7 +346,7 @@ export default function CheckoutPage() {
                   transition={{ delay: 0.45 }}
                   className="text-gray-500 mb-1"
                 >
-                  Your donation of <strong className="text-gray-900">${finalAmount}</strong> has been submitted.
+                  Your donation of <strong className="text-gray-900">£{finalAmount}</strong> has been submitted.
                 </motion.p>
                 <motion.p
                   initial={{ opacity: 0, y: 10 }}
