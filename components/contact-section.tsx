@@ -171,7 +171,7 @@ export function ContactSection() {
                         value={formData.name}
                         onChange={handleChange}
                         placeholder="Your name"
-                        className={`bg-gray-50 border-gray-200 focus:border-gray-400 ${
+                        className={`bg-black border-gray-700 text-white placeholder:text-gray-500 focus:border-gray-400 ${
                           errors.name ? "border-destructive" : ""
                         }`}
                       />
@@ -194,7 +194,7 @@ export function ContactSection() {
                         value={formData.email}
                         onChange={handleChange}
                         placeholder="your@email.com"
-                        className={`bg-gray-50 border-gray-200 focus:border-gray-400 ${
+                        className={`bg-black border-gray-700 text-white placeholder:text-gray-500 focus:border-gray-400 ${
                           errors.email ? "border-destructive" : ""
                         }`}
                       />
@@ -217,7 +217,7 @@ export function ContactSection() {
                       value={formData.subject}
                       onChange={handleChange}
                       placeholder="How can we help?"
-                      className={`bg-gray-50 border-gray-200 focus:border-gray-400 ${
+                      className={`bg-black border-gray-700 text-white placeholder:text-gray-500 focus:border-gray-400 ${
                         errors.subject ? "border-destructive" : ""
                       }`}
                     />
@@ -241,7 +241,7 @@ export function ContactSection() {
                       placeholder="Tell us more about your inquiry..."
                       rows={4}
                       suppressHydrationWarning
-                      className={`bg-gray-50 border-gray-200 focus:border-gray-400 resize-none ${
+                      className={`bg-black border-gray-700 text-white placeholder:text-gray-500 focus:border-gray-400 resize-none ${
                         errors.message ? "border-destructive" : ""
                       }`}
                     />
