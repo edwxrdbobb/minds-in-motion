@@ -5,6 +5,7 @@ import { ImageIcon, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { images } from "@/lib/cloudinary";
+import { FallingPattern } from "@/components/ui/falling-pattern";
 
 const previewImages = [
   { src: images["682105336_18094481158914914_7793339273851575831_n"], alt: "Nepal chess program" },
@@ -18,7 +19,9 @@ const previewImages = [
 export function GallerySection() {
   return (
     <section id="gallery" className="relative py-24 overflow-hidden bg-black min-h-screen">
-      <div className="absolute inset-0 dotted-bg opacity-20" />
+      <div className="absolute inset-0">
+        <FallingPattern color="rgba(255,255,255,0.35)" backgroundColor="#000000" duration={150} blurIntensity="1em" />
+      </div>
 
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <motion.div

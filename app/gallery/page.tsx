@@ -6,6 +6,7 @@ import { X, ChevronLeft, ChevronRight, ArrowLeft, ImageIcon } from "lucide-react
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import { images } from "@/lib/cloudinary";
+import { FallingPattern } from "@/components/ui/falling-pattern";
 
 const galleryImages = [
   { src: images["682105336_18094481158914914_7793339273851575831_n"], alt: "Nepal chess program" },
@@ -56,27 +57,32 @@ export default function GalleryPage() {
 
   return (
     <div
-      className="min-h-screen bg-gray-50"
+      className="relative min-h-screen bg-black"
       onKeyDown={handleKeyDown}
       tabIndex={0}
     >
+      {/* Falling pattern background */}
+      <div className="fixed inset-0 z-0">
+        <FallingPattern color="rgba(255,255,255,0.35)" backgroundColor="#000000" duration={150} blurIntensity="1em" />
+      </div>
+
       {/* Header */}
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-40">
+      <div className="relative z-40 bg-black/60 border-b border-white/10 sticky top-0 backdrop-blur-md">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="flex h-16 items-center justify-between">
-            <Button asChild variant="ghost" className="text-gray-700 gap-2">
+            <Button asChild variant="ghost" className="text-white/70 hover:text-white hover:bg-white/10 gap-2">
               <Link href="/">
                 <ArrowLeft className="w-4 h-4" />
                 Back to Home
               </Link>
             </Button>
             <div className="flex items-center gap-2">
-               <img
+              <img
                 src={images.logo}
                 alt="Minds in Motion"
                 className="w-8 h-8 rounded-lg object-cover"
               />
-              <span className="text-sm font-semibold text-gray-900">
+              <span className="text-sm font-semibold text-white">
                 Minds in Motion
               </span>
             </div>
@@ -85,23 +91,23 @@ export default function GalleryPage() {
       </div>
 
       {/* Page content */}
-      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
+      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-12">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5 }}
           className="text-center mb-12"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gray-100 border border-gray-200 mb-6">
-            <ImageIcon className="w-4 h-4 text-gray-900" />
-            <span className="text-sm text-gray-600">
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 mb-6">
+            <ImageIcon className="w-4 h-4 text-white" />
+            <span className="text-sm text-white/70">
               {galleryImages.length} Photos
             </span>
           </div>
-          <h1 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-4">
+          <h1 className="text-4xl sm:text-5xl font-bold text-white mb-4">
             Our Gallery
           </h1>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <p className="text-lg text-white/60 max-w-2xl mx-auto">
             Browse through moments captured from our chess programs across Nepal
             and Ghana. Click any photo to view it in full size.
           </p>
@@ -116,7 +122,7 @@ export default function GalleryPage() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.4, delay: index * 0.03 }}
               onClick={() => openLightbox(index)}
-              className="break-inside-avoid group relative w-full overflow-hidden rounded-2xl border border-gray-200 shadow-sm hover:shadow-lg transition-all duration-300 cursor-pointer"
+              className="break-inside-avoid group relative w-full overflow-hidden rounded-2xl border border-white/15 shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer"
             >
               <img
                 src={image.src}
