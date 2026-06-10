@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
-import { Send, Instagram, Mail, CheckCircle2, AlertCircle } from "lucide-react";
+import { Send, Instagram, Mail, CheckCircle2, AlertCircle, Loader2 } from "lucide-react";
 import { BackgroundRippleEffect } from "@/components/ui/background-ripple-effect";
 
 interface FormData {
@@ -32,6 +32,8 @@ export function ContactSection() {
   });
   const [errors, setErrors] = useState<FormErrors>({});
   const [isSubmitted, setIsSubmitted] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [submitError, setSubmitError] = useState<string | null>(null);
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
@@ -62,16 +64,27 @@ export function ContactSection() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setSubmitError(null);
 
-    if (validateForm()) {
-      // Here you would typically send the data to an API endpoint
-      // For now, we'll just simulate success
-      console.log("Form submitted:", formData);
+    if (!validateForm()) return;
+
+    setIsLoading(true);
+    try {
+      const res = await fetch("/api/contact", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(formData),
+      });
+
+      if (!res.ok) throw new Error("Failed to send");
+
       setIsSubmitted(true);
       setFormData({ name: "", email: "", subject: "", message: "" });
-
-      // Reset submission status after 5 seconds
-      setTimeout(() => setIsSubmitted(false), 5000);
+      setTimeout(() => setIsSubmitted(false), 6000);
+    } catch {
+      setSubmitError("Something went wrong. Please try again or email us directly.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -240,13 +253,30 @@ export function ContactSection() {
                     )}
                   </div>
 
+                  {submitError && (
+                    <p className="text-sm text-destructive flex items-center gap-1">
+                      <AlertCircle className="w-3 h-3 shrink-0" />
+                      {submitError}
+                    </p>
+                  )}
+
                   <Button
                     type="submit"
                     size="lg"
-                    className="w-full bg-gray-900 text-white hover:bg-gray-800"
+                    disabled={isLoading}
+                    className="w-full bg-gray-900 text-white hover:bg-gray-800 disabled:opacity-60"
                   >
-                    <Send className="w-4 h-4 mr-2" />
-                    Send Message
+                    {isLoading ? (
+                      <>
+                        <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                        Sending…
+                      </>
+                    ) : (
+                      <>
+                        <Send className="w-4 h-4 mr-2" />
+                        Send Message
+                      </>
+                    )}
                   </Button>
                 </form>
               )}
