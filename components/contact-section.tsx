@@ -120,7 +120,7 @@ export function ContactSection() {
           </p>
         </motion.div>
 
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-16">
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-16">
           {/* Contact Form */}
           <motion.div
             initial={{ opacity: 0, x: -30 }}
@@ -128,7 +128,7 @@ export function ContactSection() {
             transition={{ duration: 0.6 }}
             viewport={{ once: true, margin: "-100px" }}
           >
-            <div className="bg-white/80 backdrop-blur-sm border border-gray-200 shadow-sm rounded-2xl p-8">
+            <div className="bg-white/80 backdrop-blur-sm border border-gray-200 shadow-sm rounded-2xl p-5 sm:p-8">
               {isSubmitted ? (
                 <motion.div
                   initial={{ opacity: 0, scale: 0.9 }}
@@ -226,7 +226,7 @@ export function ContactSection() {
                       value={formData.message}
                       onChange={handleChange}
                       placeholder="Tell us more about your inquiry..."
-                      rows={5}
+                      rows={4}
                       suppressHydrationWarning
                       className={`bg-gray-50 border-gray-200 focus:border-gray-400 resize-none ${
                         errors.message ? "border-destructive" : ""

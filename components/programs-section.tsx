@@ -72,7 +72,7 @@ export function ProgramsSection() {
         </motion.div>
 
         {/* Cards Grid */}
-        <div className="grid md:grid-cols-3 gap-6 lg:gap-8">
+        <div className="grid sm:grid-cols-2 md:grid-cols-3 gap-6 lg:gap-8">
           {cards.map((card, index) => (
             <motion.div
               key={card.id}
@@ -83,7 +83,7 @@ export function ProgramsSection() {
               viewport={{ once: true, margin: "-100px" }}
               className="group relative"
             >
-              <div className="relative h-full bg-white/80 backdrop-blur-sm border border-gray-200 shadow-sm rounded-2xl p-8 overflow-hidden transition-all duration-300 hover:border-gray-400 hover:shadow-md">
+              <div className="relative h-full bg-white/80 backdrop-blur-sm border border-gray-200 shadow-sm rounded-2xl p-5 sm:p-8 overflow-hidden transition-all duration-300 hover:border-gray-400 hover:shadow-md">
                 {/* Gradient background */}
                 <div
                   className="absolute inset-0 bg-gradient-to-br from-gray-100 to-gray-50 opacity-0 group-hover:opacity-100 transition-opacity duration-300"

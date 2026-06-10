@@ -27,8 +27,8 @@ export function HeroSection() {
       {/* Noise overlay on top of shader */}
       <div className="absolute inset-0 noise-overlay opacity-30" />
 
-      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-20 pt-32">
-        <div className="grid lg:grid-cols-2 gap-12 lg:gap-8 items-center">
+      <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 py-16 pt-28 sm:py-20 sm:pt-32">
+        <div className="grid lg:grid-cols-2 gap-8 lg:gap-8 items-center">
           {/* Content */}
           <motion.div
             initial={{ opacity: 0, x: -50 }}
@@ -99,7 +99,7 @@ export function HeroSection() {
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ delay: 0.6, duration: 0.6 }}
-              className="mt-12 flex items-center justify-center lg:justify-start gap-8"
+              className="mt-12 flex items-center justify-center lg:justify-start gap-4 sm:gap-8"
             >
               <div className="text-center">
                 <div className="text-2xl font-bold text-primary">201+</div>
@@ -125,9 +125,9 @@ export function HeroSection() {
             initial={{ opacity: 0, scale: 0.8 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.4, duration: 0.8, ease: "easeOut" }}
-            className="relative"
+            className="relative order-first lg:order-last"
           >
-            <div className="relative aspect-square max-w-lg mx-auto">
+            <div className="relative aspect-square max-w-xs sm:max-w-sm lg:max-w-lg mx-auto">
               {/* Glow effects */}
               <div className="absolute inset-0 bg-gradient-to-r from-primary/20 to-accent/20 rounded-full blur-3xl opacity-50" />
               <div className="absolute inset-10 bg-primary/10 rounded-full blur-2xl animate-pulse-glow" />

@@ -63,7 +63,7 @@ export function GallerySection() {
               <img
                 src={image.src}
                 alt={image.alt}
-                className="w-full h-56 object-cover transition-transform duration-500 group-hover:scale-105"
+                className="w-full h-44 sm:h-56 object-cover transition-transform duration-500 group-hover:scale-105"
                 loading="lazy"
               />
               <div className="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-300 flex items-end p-4">

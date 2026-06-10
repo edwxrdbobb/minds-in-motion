@@ -133,7 +133,7 @@ export default function CheckoutPage() {
                   <motion.div variants={stagger} initial="initial" animate="animate">
                     <motion.div variants={fadeUp}>
                       <Label className="text-sm font-semibold text-gray-900">Choose an amount</Label>
-                      <div className="grid grid-cols-5 gap-2.5 mt-3">
+                      <div className="grid grid-cols-3 sm:grid-cols-5 gap-2.5 mt-3">
                         {donationAmounts.map((donationAmount) => (
                           <button
                             key={donationAmount}

@@ -1,9 +1,9 @@
 "use client";
-
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { MapPin, Users, BookOpen } from "lucide-react";
-import { Boxes } from "@/components/ui/background-tiles";
 import { images } from "@/lib/cloudinary";
+import { cn } from "@/lib/utils";
 
 const highlights = [
   {
@@ -23,19 +23,46 @@ const highlights = [
   },
 ];
 
+export const Component = () => {
+  const [count, setCount] = useState(0);
+
+  return (
+   <div className="min-h-screen w-full relative bg-white">
+  {/* Soft Yellow Glow */}
+  <div
+    className="absolute inset-0 z-0"
+    style={{
+      backgroundImage: `
+        radial-gradient(circle at center, #FFF991 0%, transparent 70%)
+      `,
+      opacity: 0.6,
+      mixBlendMode: "multiply",
+    }}
+  />
+     {/* Your Content/Components */}
+</div>
+  );
+};
+
 export function AboutSection() {
   return (
-    <section id="about" className="relative py-24 overflow-hidden bg-black">
-      {/* B&W isometric grid — inverted so lines show as light on dark bg */}
-      <div className="absolute inset-0 w-full h-full overflow-hidden z-0 invert opacity-15">
-        <Boxes />
-      </div>
+
+    <section id="about" className="relative py-24 overflow-hidden bg-transparent">
+        {/* Noise Texture (Darker Dots) Background */}
+  <div
+    className="absolute inset-0 z-0"
+    style={{
+      background: "#000000",
+      backgroundImage: "radial-gradient(circle at 1px 1px, rgba(255, 255, 255, 0.35) 1px, transparent 0)",
+      backgroundSize: "20px 20px",
+    }}
+  />
 
       {/* Subtle fade at top/bottom edges */}
       <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/60 z-[1]" />
 
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-        <div className="grid lg:grid-cols-2 gap-16 items-center">
+        <div className="grid lg:grid-cols-2 gap-10 lg:gap-16 items-center">
           {/* Content */}
           <motion.div
             initial={{ opacity: 0, x: -30 }}
@@ -101,33 +128,33 @@ export function AboutSection() {
             <div className="relative">
               <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-white/0 rounded-3xl blur-2xl" />
 
-              <div className="relative bg-white/5 backdrop-blur-sm border border-white/10 shadow-sm rounded-3xl p-4 overflow-hidden">
+              <div className="relative bg-white/5 backdrop-blur-sm border border-white/10 shadow-sm rounded-3xl p-3 sm:p-4 overflow-hidden">
                 <div className="grid grid-cols-2 gap-3">
                   <div className="col-span-2 overflow-hidden rounded-2xl">
                     <img
                       src={images["SnapInsta.to_693988552_18098778568914914_6229337764024885964_n"]}
                       alt="Children with chessboards"
-                      className="w-full h-48 object-cover hover:scale-105 transition-transform duration-500"
+                      className="w-full h-40 sm:h-48 object-cover hover:scale-105 transition-transform duration-500"
                     />
                   </div>
                   <div className="overflow-hidden rounded-2xl">
                     <img
                       src={images["682105336_18094481158914914_7793339273851575831_n"]}
                       alt="Nepal chess program"
-                      className="w-full h-36 object-cover hover:scale-105 transition-transform duration-500"
+                      className="w-full h-28 sm:h-36 object-cover hover:scale-105 transition-transform duration-500"
                     />
                   </div>
                   <div className="overflow-hidden rounded-2xl">
                     <img
                       src={images["SnapInsta.to_683602965_18095464537914914_8037810932371650682_n"]}
                       alt="Children playing chess"
-                      className="w-full h-36 object-cover hover:scale-105 transition-transform duration-500"
+                      className="w-full h-28 sm:h-36 object-cover hover:scale-105 transition-transform duration-500"
                     />
                   </div>
                 </div>
 
                 <div className="p-4">
-                  <blockquote className="text-lg text-white/60 italic border-l-2 border-white/25 pl-4">
+                  <blockquote className="text-sm sm:text-base text-white/60 italic border-l-2 border-white/25 pl-4">
                     &quot;Every move on the chessboard teaches a lesson for life—
                     patience, foresight, and the courage to take calculated
                     risks.&quot;
@@ -150,5 +177,6 @@ export function AboutSection() {
         </div>
       </div>
     </section>
+
   );
 }
