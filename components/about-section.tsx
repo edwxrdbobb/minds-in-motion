@@ -24,15 +24,15 @@ const highlights = [
 ];
 
 export function AboutSection() {
-  return ( 
-    <section id="about" className="relative py-24 overflow-hidden bg-white">
-      {/* Background boxes */}
-      <div className="absolute inset-0 w-full h-full overflow-hidden z-0">
+  return (
+    <section id="about" className="relative py-24 overflow-hidden bg-black">
+      {/* B&W isometric grid — inverted so lines show as light on dark bg */}
+      <div className="absolute inset-0 w-full h-full overflow-hidden z-0 invert opacity-15">
         <Boxes />
       </div>
-      
-      {/* Gradient fade overlay for readability */}
-      <div className="absolute inset-0 bg-gradient-to-b from-white via-gray-100 to-gray-100/80 z-[1]" />
+
+      {/* Subtle fade at top/bottom edges */}
+      <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-transparent to-black/60 z-[1]" />
 
       <div className="relative z-10 mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="grid lg:grid-cols-2 gap-16 items-center">
@@ -43,15 +43,15 @@ export function AboutSection() {
             transition={{ duration: 0.6 }}
             viewport={{ once: true, margin: "-100px" }}
           >
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gray-600/10 border border-gray-800/20 mb-6">
-              <span className="text-sm text-gray-700">Who We Are</span>
+            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 mb-6">
+              <span className="text-sm text-white/80">Who We Are</span>
             </div>
 
-            <h2 className="text-3xl sm:text-4xl font-bold text-gray-800 mb-6 text-balance">
-              About <span className="text-gray-500">Minds in Motion</span>
+            <h2 className="text-3xl sm:text-4xl font-bold text-white mb-6 text-balance">
+              About <span className="text-white/50">Minds in Motion</span>
             </h2>
 
-            <div className="space-y-4 text-gray-600 leading-relaxed">
+            <div className="space-y-4 text-white/70 leading-relaxed">
               <p>
                 Minds in Motion is a nonprofit organization dedicated to empowering
                 youth through the game of chess. We believe that chess is more than
@@ -79,13 +79,11 @@ export function AboutSection() {
                   className="flex items-start gap-4"
                 >
                   <div className="flex-shrink-0 w-10 h-10 rounded-lg bg-white/10 flex items-center justify-center">
-                    <item.icon className="w-5 h-5 text-gray-600" />
+                    <item.icon className="w-5 h-5 text-white/70" />
                   </div>
                   <div>
-                    <h3 className="font-semibold text-gray-600">{item.title}</h3>
-                    <p className="text-sm text-slate-400">
-                      {item.description}
-                    </p>
+                    <h3 className="font-semibold text-white/80">{item.title}</h3>
+                    <p className="text-sm text-white/45">{item.description}</p>
                   </div>
                 </motion.div>
               ))}
@@ -101,11 +99,9 @@ export function AboutSection() {
             className="relative"
           >
             <div className="relative">
-              {/* Background glow */}
-              <div className="absolute inset-0 bg-gradient-to-br from-white/10 to-white/5 rounded-3xl blur-2xl" />
-              
-              {/* Image collage */}
-              <div className="relative bg-white/10 backdrop-blur-sm border border-gray-200/20 shadow-sm rounded-3xl p-4 overflow-hidden">
+              <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-white/0 rounded-3xl blur-2xl" />
+
+              <div className="relative bg-white/5 backdrop-blur-sm border border-white/10 shadow-sm rounded-3xl p-4 overflow-hidden">
                 <div className="grid grid-cols-2 gap-3">
                   <div className="col-span-2 overflow-hidden rounded-2xl">
                     <img
@@ -131,7 +127,7 @@ export function AboutSection() {
                 </div>
 
                 <div className="p-4">
-                  <blockquote className="text-lg text-gray-600 italic border-l-2 border-gray-400 pl-4">
+                  <blockquote className="text-lg text-white/60 italic border-l-2 border-white/25 pl-4">
                     &quot;Every move on the chessboard teaches a lesson for life—
                     patience, foresight, and the courage to take calculated
                     risks.&quot;
@@ -139,16 +135,12 @@ export function AboutSection() {
 
                   <div className="grid grid-cols-2 gap-4 mt-4">
                     <div className="bg-white/10 rounded-xl p-4 text-center">
-                      <div className="text-3xl font-bold text-gray-600">Nepal</div>
-                      <div className="text-sm text-gray-400">
-                        Active Region
-                      </div>
+                      <div className="text-3xl font-bold text-white/70">Nepal</div>
+                      <div className="text-sm text-white/40">Active Region</div>
                     </div>
                     <div className="bg-white/10 rounded-xl p-4 text-center">
-                      <div className="text-3xl font-bold text-gray-600">Ghana</div>
-                      <div className="text-sm text-slate-400">
-                        Active Region
-                      </div>
+                      <div className="text-3xl font-bold text-white/70">Ghana</div>
+                      <div className="text-sm text-white/40">Active Region</div>
                     </div>
                   </div>
                 </div>
