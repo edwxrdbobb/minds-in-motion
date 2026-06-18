@@ -28,9 +28,9 @@ export function ChessShaderBackground({ className = "" }: ChessShaderBackgroundP
     const ctx = canvas.getContext("2d", { alpha: false });
     if (!ctx) return;
 
-    let dpr = window.devicePixelRatio || 1;
+    let dpr = Math.min(window.devicePixelRatio || 1, 1.5);
     const resize = () => {
-      dpr = window.devicePixelRatio || 1;
+      dpr = Math.min(window.devicePixelRatio || 1, 1.5);
       const rect = canvas.getBoundingClientRect();
       canvas.width = rect.width * dpr;
       canvas.height = rect.height * dpr;
@@ -60,11 +60,15 @@ export function ChessShaderBackground({ className = "" }: ChessShaderBackgroundP
       return { x: w / 2 + wx * s, y: horizY + CAM_H * s, s };
     }
 
+    let lastDrawTime = 0;
+    const FRAME_INTERVAL = 1000 / 30; // cap at 30fps
+
     const draw = (time: number) => {
-      if (hidden) {
-        animRef.current = requestAnimationFrame(draw);
-        return;
-      }
+      animRef.current = requestAnimationFrame(draw);
+      if (hidden) return;
+      const elapsed = time - lastDrawTime;
+      if (elapsed < FRAME_INTERVAL) return;
+      lastDrawTime = time - (elapsed % FRAME_INTERVAL);
 
       const t = time * 0.001;
       const w = canvas.width / dpr;
@@ -73,14 +77,14 @@ export function ChessShaderBackground({ className = "" }: ChessShaderBackgroundP
 
       // Smooth mouse — lerp toward raw position each frame
       const sm = smoothMouseRef.current;
-      sm.x += (mouseRef.current.x - sm.x) * 0.045;
-      sm.y += (mouseRef.current.y - sm.y) * 0.045;
+      sm.x += (mouseRef.current.x - sm.x) * 0.025;
+      sm.y += (mouseRef.current.y - sm.y) * 0.025;
 
       ctx.fillStyle = "#080808";
       ctx.fillRect(0, 0, w, h);
 
       // Floor scrolls toward viewer: as scrollOff increases, wz decreases
-      const scrollOff = (t * 55) % CELL;
+      const scrollOff = (t * 22) % CELL;
 
       // Draw back to front so near cells paint over far cells
       for (let row = ROWS - 1; row >= 0; row--) {
@@ -123,7 +127,7 @@ export function ChessShaderBackground({ className = "" }: ChessShaderBackgroundP
           const mouseGlow = Math.max(0, 1 - Math.sqrt(dx * dx + dy * dy) / 240);
 
           // Pulse wave emanating from horizon
-          const wave = Math.sin(avgZ / CELL * 0.65 - t * 1.6) * 0.5 + 0.5;
+          const wave = Math.sin(avgZ / CELL * 0.65 - t * 0.65) * 0.5 + 0.5;
 
           const baseAlpha = isLight ? 0.06 : 0.022;
           const alpha = Math.min(
@@ -185,8 +189,6 @@ export function ChessShaderBackground({ className = "" }: ChessShaderBackgroundP
       fog.addColorStop(1, "rgba(8,8,8,0)");
       ctx.fillStyle = fog;
       ctx.fillRect(0, 0, w, horizY);
-
-      animRef.current = requestAnimationFrame(draw);
     };
 
     animRef.current = requestAnimationFrame(draw);

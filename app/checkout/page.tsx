@@ -1,13 +1,19 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
-import { CheckCircle, ArrowLeft, Heart, ChevronRight, Globe } from "lucide-react";
+import { CheckCircle, ArrowLeft, Heart, ChevronRight, Globe, Loader2, Lock } from "lucide-react";
+import { loadStripe } from "@stripe/stripe-js";
+import {
+  CheckoutElementsProvider,
+  PaymentElement,
+  useCheckout,
+} from "@stripe/react-stripe-js/checkout";
 
 const donationAmounts = [10, 25, 50, 100, 250];
 const steps = ["Amount", "Details", "Confirm"];
@@ -18,8 +24,94 @@ const stagger = {
 
 const fadeUp = {
   initial: { opacity: 0, y: 16 },
-  animate: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" } },
+  animate: { opacity: 1, y: 0, transition: { duration: 0.4, ease: "easeOut" as const } },
 };
+
+function PaymentForm({
+  form,
+  finalAmount,
+  onSuccess,
+  onBack,
+}: {
+  form: { name: string; email: string; message: string };
+  finalAmount: number;
+  onSuccess: () => void;
+  onBack: () => void;
+}) {
+  const checkout = useCheckout();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState("");
+
+  // useCheckout returns { type: "loading" } until the session is ready
+  const isReady = checkout.type !== "loading";
+
+  const handleConfirm = async () => {
+    if (!isReady) return;
+    setLoading(true);
+    setError("");
+
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    const result = await (checkout as any).confirm() as
+      | { type: "success" }
+      | { type: "redirect"; url: string }
+      | { type: "error"; error: { message?: string } };
+
+    if (result.type === "error") {
+      setError(result.error.message ?? "Payment failed. Please try again.");
+      setLoading(false);
+    } else if (result.type === "success") {
+      onSuccess();
+    }
+    // type === "redirect" → Stripe auto-navigates to the return_url
+  };
+
+  return (
+    <>
+      <div className="mb-6">
+        <PaymentElement options={{ layout: "tabs" }} />
+      </div>
+
+      {error && (
+        <div className="bg-red-50 border border-red-200/60 rounded-xl px-5 py-3.5 mb-5">
+          <p className="text-xs text-red-700 font-medium">{error}</p>
+        </div>
+      )}
+
+      <div className="flex items-center justify-center gap-1.5 text-xs text-gray-400 mb-5">
+        <Lock className="w-3 h-3" />
+        Secured by Stripe
+      </div>
+
+      <div className="flex gap-3">
+        <Button
+          variant="outline"
+          onClick={onBack}
+          disabled={loading}
+          className="flex-1 h-12 rounded-xl border-gray-200 text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-all duration-200"
+        >
+          Edit details
+        </Button>
+        <Button
+          onClick={handleConfirm}
+          disabled={loading || !isReady}
+          className="flex-1 h-12 bg-gray-900 text-white hover:bg-gray-800 rounded-xl font-semibold shadow-lg shadow-gray-900/20 transition-all duration-200 hover:shadow-xl hover:shadow-gray-900/25 hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed"
+        >
+          {loading ? (
+            <>
+              <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+              Processing...
+            </>
+          ) : (
+            <>
+              Donate £{finalAmount}
+              <CheckCircle className="w-4 h-4 ml-2" />
+            </>
+          )}
+        </Button>
+      </div>
+    </>
+  );
+}
 
 export default function CheckoutPage() {
   const router = useRouter();
@@ -27,18 +119,67 @@ export default function CheckoutPage() {
   const [amount, setAmount] = useState(25);
   const [customAmount, setCustomAmount] = useState("");
   const [form, setForm] = useState({ name: "", email: "", message: "" });
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    setStep("confirm");
-  };
-
-  const handleConfirm = () => {
-    setStep("success");
-  };
+  const [sessionConfig, setSessionConfig] = useState<{
+    clientSecret: string;
+    publishableKey: string;
+  } | null>(null);
+  const [sessionLoading, setSessionLoading] = useState(false);
+  const [sessionError, setSessionError] = useState("");
 
   const finalAmount = amount > 0 ? amount : Number(customAmount) || 0;
   const stepIndex = step === "form" ? 0 : step === "confirm" ? 1 : 2;
+
+  // Handle return from 3DS / redirect-based payment methods
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("session_id")) {
+      setStep("success");
+    }
+  }, []);
+
+  const stripePromise = useMemo(
+    () => (sessionConfig ? loadStripe(sessionConfig.publishableKey) : null),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [sessionConfig?.publishableKey]
+  );
+
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (finalAmount <= 0) return;
+
+    setSessionLoading(true);
+    setSessionError("");
+
+    try {
+      const res = await fetch("/api/create-checkout-session", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          amount: finalAmount,
+          name: form.name,
+          email: form.email,
+          message: form.message,
+          origin: window.location.origin,
+        }),
+      });
+
+      if (!res.ok) throw new Error("Failed to initialize payment");
+      const data = await res.json();
+      if (data.error) throw new Error(data.error);
+
+      setSessionConfig(data);
+      setStep("confirm");
+    } catch {
+      setSessionError("Could not start payment. Please try again.");
+    } finally {
+      setSessionLoading(false);
+    }
+  };
+
+  const handleBack = () => {
+    setSessionConfig(null);
+    setStep("form");
+  };
 
   return (
     <div className="min-h-screen bg-[#f8f8f8]">
@@ -212,20 +353,36 @@ export default function CheckoutPage() {
                     </motion.div>
                   </motion.div>
 
+                  {sessionError && (
+                    <div className="bg-red-50 border border-red-200/60 rounded-xl px-5 py-3.5">
+                      <p className="text-xs text-red-700 font-medium">{sessionError}</p>
+                    </div>
+                  )}
+
                   <motion.div variants={fadeUp}>
                     <Button
                       type="submit"
-                      className="w-full h-13 bg-gray-900 text-white hover:bg-gray-800 rounded-xl text-base font-semibold shadow-lg shadow-gray-900/20 transition-all duration-200 hover:shadow-xl hover:shadow-gray-900/25 hover:-translate-y-0.5"
+                      disabled={sessionLoading || finalAmount <= 0}
+                      className="w-full h-13 bg-gray-900 text-white hover:bg-gray-800 rounded-xl text-base font-semibold shadow-lg shadow-gray-900/20 transition-all duration-200 hover:shadow-xl hover:shadow-gray-900/25 hover:-translate-y-0.5 disabled:opacity-70 disabled:cursor-not-allowed"
                     >
-                      Continue to review
-                      <ChevronRight className="w-4 h-4 ml-1.5" />
+                      {sessionLoading ? (
+                        <>
+                          <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                          Preparing...
+                        </>
+                      ) : (
+                        <>
+                          Continue to review
+                          <ChevronRight className="w-4 h-4 ml-1.5" />
+                        </>
+                      )}
                     </Button>
                   </motion.div>
                 </form>
               </motion.div>
             )}
 
-            {step === "confirm" && (
+            {step === "confirm" && sessionConfig && stripePromise && (
               <motion.div
                 key="confirm"
                 initial={{ opacity: 0, y: 12 }}
@@ -241,7 +398,7 @@ export default function CheckoutPage() {
                     Almost there
                   </h1>
                   <p className="text-gray-500 mt-2 text-sm">
-                    Please review your donation details below.
+                    Review your donation and enter payment details below.
                   </p>
                 </div>
 
@@ -270,29 +427,17 @@ export default function CheckoutPage() {
                   </div>
                 </div>
 
-                <div className="bg-amber-50/80 border border-amber-200/60 rounded-xl px-5 py-3.5 mb-8">
-                  <p className="text-xs text-amber-700 font-medium flex items-center gap-2">
-                    <span className="w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
-                    Stripe payment integration coming soon — this is a simulated checkout.
-                  </p>
-                </div>
-
-                <div className="flex gap-3">
-                  <Button
-                    variant="outline"
-                    onClick={() => setStep("form")}
-                    className="flex-1 h-12 rounded-xl border-gray-200 text-gray-600 hover:text-gray-900 hover:bg-gray-50 transition-all duration-200"
-                  >
-                    Edit details
-                  </Button>
-                  <Button
-                    onClick={handleConfirm}
-                    className="flex-1 h-12 bg-gray-900 text-white hover:bg-gray-800 rounded-xl font-semibold shadow-lg shadow-gray-900/20 transition-all duration-200 hover:shadow-xl hover:shadow-gray-900/25 hover:-translate-y-0.5"
-                  >
-                    Confirm donation
-                    <CheckCircle className="w-4 h-4 ml-2" />
-                  </Button>
-                </div>
+                <CheckoutElementsProvider
+                  stripe={stripePromise}
+                  options={{ clientSecret: sessionConfig.clientSecret }}
+                >
+                  <PaymentForm
+                    form={form}
+                    finalAmount={finalAmount}
+                    onSuccess={() => setStep("success")}
+                    onBack={handleBack}
+                  />
+                </CheckoutElementsProvider>
               </motion.div>
             )}
 
@@ -305,23 +450,15 @@ export default function CheckoutPage() {
                 transition={{ duration: 0.35 }}
                 className="text-center py-8"
               >
-                {/* Animated checkmark */}
                 <motion.div
                   initial={{ scale: 0 }}
                   animate={{ scale: 1 }}
                   transition={{ type: "spring", stiffness: 200, damping: 14, delay: 0.1 }}
                   className="w-20 h-20 bg-green-50 rounded-full flex items-center justify-center mx-auto mb-6"
                 >
-                  <motion.div
-                    initial={{ pathLength: 0 }}
-                    animate={{ pathLength: 1 }}
-                    transition={{ duration: 0.5, delay: 0.3 }}
-                  >
-                    <CheckCircle className="w-10 h-10 text-green-500" />
-                  </motion.div>
+                  <CheckCircle className="w-10 h-10 text-green-500" />
                 </motion.div>
 
-                {/* Success rings */}
                 {[0, 1, 2].map((i) => (
                   <motion.div
                     key={i}
@@ -346,7 +483,7 @@ export default function CheckoutPage() {
                   transition={{ delay: 0.45 }}
                   className="text-gray-500 mb-1"
                 >
-                  Your donation of <strong className="text-gray-900">£{finalAmount}</strong> has been submitted.
+                  Your donation of <strong className="text-gray-900">£{finalAmount}</strong> has been received.
                 </motion.p>
                 <motion.p
                   initial={{ opacity: 0, y: 10 }}
@@ -354,7 +491,7 @@ export default function CheckoutPage() {
                   transition={{ delay: 0.55 }}
                   className="text-gray-400 text-sm mb-10"
                 >
-                  A confirmation would normally be sent to {form.email}.
+                  A confirmation receipt has been sent to {form.email}.
                 </motion.p>
 
                 <motion.div
@@ -374,7 +511,6 @@ export default function CheckoutPage() {
           </AnimatePresence>
         </motion.div>
 
-        {/* Footer */}
         <motion.p
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
