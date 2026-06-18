@@ -117,7 +117,7 @@ function PawnPiece() {
     if (meshRef.current) {
       const breathe = 1 + Math.sin(elapsedRef.current * 0.8) * 0.05;
       meshRef.current.scale.setScalar(breathe * 0.3);
-      meshRef.current.rotation.y = elapsedRef.current * 0.5;
+      meshRef.current.rotation.y = elapsedRef.current * 0.2;
     }
   });
 
@@ -432,15 +432,15 @@ function Globe({
   useFrame((_, delta) => {
     elapsedRef.current += delta;
     if (globeRef.current) {
-      globeRef.current.rotation.y = elapsedRef.current * 0.1;
+      globeRef.current.rotation.y = elapsedRef.current * 0.035;
 
-      const targetRotationX = mousePosition.y * 0.2;
-      const targetRotationZ = mousePosition.x * 0.1;
+      const targetRotationX = mousePosition.y * 0.1;
+      const targetRotationZ = mousePosition.x * 0.05;
 
       globeRef.current.rotation.x +=
-        (targetRotationX - globeRef.current.rotation.x) * 0.05;
+        (targetRotationX - globeRef.current.rotation.x) * 0.03;
       globeRef.current.rotation.z +=
-        (targetRotationZ - globeRef.current.rotation.z) * 0.05;
+        (targetRotationZ - globeRef.current.rotation.z) * 0.03;
     }
   });
 
@@ -514,8 +514,9 @@ export function HeroGlobe() {
     >
       <Canvas
         camera={{ position: [0, 0, 5], fov: 45 }}
-        dpr={[1, 2]}
+        dpr={[1, 1.5]}
         gl={{ antialias: true, alpha: true }}
+        onCreated={() => window.dispatchEvent(new Event("globe-ready"))}
       >
         <ambientLight intensity={1.2} />
         <pointLight position={[10, 10, 10]} intensity={1.5} color="#fff" />

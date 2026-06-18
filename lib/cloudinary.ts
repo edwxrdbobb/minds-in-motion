@@ -1,4 +1,4 @@
-const cloudName = "dkmwom4df";
+const cloudName = process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME!
 
 export function cloudinaryUrl(publicId: string): string {
   return `https://res.cloudinary.com/${cloudName}/image/upload/${publicId}`;
