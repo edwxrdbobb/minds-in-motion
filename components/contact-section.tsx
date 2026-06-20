@@ -326,7 +326,7 @@ export function ContactSection() {
                 </motion.a>
 
                 <motion.a
-                  href="mailto:hello@mindsinmotion.org"
+                  href="mailto:greg@mindsinmotionglobal.org"
                   className="flex items-center gap-4 p-4 rounded-xl bg-gray-100 hover:bg-gray-200 transition-colors group"
                   whileHover={{ x: 5 }}
                 >
@@ -335,7 +335,7 @@ export function ContactSection() {
                   </div>
                   <div>
                     <div className="font-medium text-gray-900 group-hover:text-gray-700 transition-colors">
-                      hello@mindsinmotion.org
+                      greg@mindsinmotionglobal.org
                     </div>
                     <div className="text-sm text-gray-600">
                       Send us an email

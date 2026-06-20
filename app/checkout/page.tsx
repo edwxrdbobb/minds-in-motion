@@ -38,32 +38,43 @@ function PaymentForm({
   onSuccess: () => void;
   onBack: () => void;
 }) {
-  const checkout = useCheckout();
+  const checkoutResult = useCheckout();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // useCheckout returns { type: "loading" } until the session is ready
-  const isReady = checkout.type !== "loading";
+  // useCheckout() returns { type: "loading" | "success" | "error" }.
+  // The actual SDK (with .confirm) only exists on the "success" branch as `.checkout`.
+  const isReady = checkoutResult.type === "success";
 
   const handleConfirm = async () => {
-    if (!isReady) return;
+    if (checkoutResult.type !== "success") return;
     setLoading(true);
     setError("");
 
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const result = await (checkout as any).confirm() as
-      | { type: "success" }
-      | { type: "redirect"; url: string }
-      | { type: "error"; error: { message?: string } };
-
-    if (result.type === "error") {
-      setError(result.error.message ?? "Payment failed. Please try again.");
+    try {
+      const result = await checkoutResult.checkout.confirm();
+      if (result.type === "error") {
+        setError(result.error.message ?? "Payment failed. Please try again.");
+        setLoading(false);
+      } else {
+        onSuccess();
+      }
+      // Redirect-based payment methods navigate the browser away before this resolves.
+    } catch {
+      setError("Something went wrong. Please try again.");
       setLoading(false);
-    } else if (result.type === "success") {
-      onSuccess();
     }
-    // type === "redirect" → Stripe auto-navigates to the return_url
   };
+
+  if (checkoutResult.type === "error") {
+    return (
+      <div className="bg-red-50 border border-red-200/60 rounded-xl px-5 py-3.5 mb-5">
+        <p className="text-xs text-red-700 font-medium">
+          {checkoutResult.error.message || "Could not load payment form. Please go back and try again."}
+        </p>
+      </div>
+    );
+  }
 
   return (
     <>

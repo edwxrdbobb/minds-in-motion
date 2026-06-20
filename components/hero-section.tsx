@@ -1,11 +1,29 @@
 "use client";
 
-import { motion } from "framer-motion";
+import { useEffect, useState } from "react";
+import { motion, animate } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { HeroGlobe } from "@/components/hero-globe";
 import { useRouter } from "next/navigation";
 import { ChessShaderBackground } from "@/components/chess-shader-background";
 import { ArrowRight, Heart } from "lucide-react";
+
+function BoardsDonatedCounter({ to, delay = 0 }: { to: number; delay?: number }) {
+  const [value, setValue] = useState(0);
+  const digits = String(to).length;
+
+  useEffect(() => {
+    const controls = animate(0, to, {
+      duration: 2,
+      delay,
+      ease: "easeOut",
+      onUpdate: (v) => setValue(Math.floor(v)),
+    });
+    return () => controls.stop();
+  }, [to, delay]);
+
+  return <>{String(value).padStart(digits, "0")}+</>;
+}
 
 export function HeroSection() {
   const router = useRouter();
@@ -102,7 +120,9 @@ export function HeroSection() {
               className="mt-12 flex items-center justify-center lg:justify-start gap-4 sm:gap-8"
             >
               <div className="text-center">
-                <div className="text-2xl font-bold text-primary">201+</div>
+                <div className="text-2xl font-bold text-primary">
+                  <BoardsDonatedCounter to={201} delay={0.6} />
+                </div>
                 <div className="text-sm text-muted-foreground">
                   Boards Donated
                 </div>
