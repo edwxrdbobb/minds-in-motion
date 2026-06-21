@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { images } from "@/lib/cloudinary";
 
 export function PagePreloader() {
   const [visible, setVisible] = useState(true);
@@ -49,31 +50,16 @@ export function PagePreloader() {
 
           {/* Content */}
           <div className="relative flex flex-col items-center gap-6">
-            {/* Pawn icon */}
+            {/* Logo */}
             <motion.div
               animate={{ scale: [1, 1.06, 1] }}
               transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
             >
-              <svg
-                viewBox="0 0 40 56"
-                fill="none"
-                xmlns="http://www.w3.org/2000/svg"
-                className="w-10 h-14"
-              >
-                <circle cx="20" cy="9" r="8" fill="white" fillOpacity="0.9" />
-                <path
-                  d="M14 17h12l3 12H11l3-12z"
-                  fill="white"
-                  fillOpacity="0.75"
-                />
-                <path
-                  d="M9 29h22l2 8H7l2-8z"
-                  fill="white"
-                  fillOpacity="0.65"
-                />
-                <rect x="4" y="37" width="32" height="5" rx="2.5" fill="white" fillOpacity="0.55" />
-                <rect x="2" y="42" width="36" height="6" rx="3" fill="white" fillOpacity="0.45" />
-              </svg>
+              <img
+                src={images.logo}
+                alt="Minds in Motion"
+                className="w-16 h-16 rounded-2xl object-cover"
+              />
             </motion.div>
 
             {/* Brand name */}

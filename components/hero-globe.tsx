@@ -22,58 +22,107 @@ function latLngToVector3(
   return [x, y, z];
 }
 
+// ---------- World Map data cache ----------
+// Avoids re-fetching + re-parsing the ~200KB world atlas every time the globe
+// remounts (SPA navigation) or the page reloads (persisted in localStorage).
+type CountryLines = [number, number, number][][];
+
+const WORLD_ATLAS_URL =
+  "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json";
+const WORLD_ATLAS_STORAGE_KEY = "mim-world-atlas-lines-v1";
+
+let countryLinesMemoryCache: CountryLines | null = null;
+let countryLinesPromise: Promise<CountryLines> | null = null;
+
+function buildCountryLines(world: unknown, radius: number): CountryLines {
+  const countries = feature(
+    world as never,
+    (world as { objects: { countries: never } }).objects.countries
+  ) as unknown as GeoJSON.FeatureCollection;
+
+  const lines: CountryLines = [];
+  for (const feat of countries.features) {
+    const geom = feat.geometry;
+    let polygons: number[][][][] = [];
+
+    if (geom.type === "Polygon") {
+      polygons = [geom.coordinates as number[][][]];
+    } else if (geom.type === "MultiPolygon") {
+      polygons = geom.coordinates as number[][][][];
+    }
+
+    for (const polygon of polygons) {
+      for (const ring of polygon) {
+        const points: [number, number, number][] = [];
+        for (const coord of ring) {
+          points.push(latLngToVector3(coord[1], coord[0], radius + 0.01));
+        }
+        if (points.length > 1) lines.push(points);
+      }
+    }
+  }
+  return lines;
+}
+
+async function loadCountryLines(radius: number): Promise<CountryLines> {
+  if (countryLinesMemoryCache) return countryLinesMemoryCache;
+  if (countryLinesPromise) return countryLinesPromise;
+
+  countryLinesPromise = (async () => {
+    try {
+      const cached = localStorage.getItem(WORLD_ATLAS_STORAGE_KEY);
+      if (cached) {
+        const parsed = JSON.parse(cached) as {
+          radius: number;
+          lines: CountryLines;
+        };
+        if (parsed.radius === radius) {
+          countryLinesMemoryCache = parsed.lines;
+          return parsed.lines;
+        }
+      }
+    } catch {
+      // localStorage unavailable (private mode, etc.) — fall through to fetch
+    }
+
+    const response = await fetch(WORLD_ATLAS_URL);
+    const world = await response.json();
+    const lines = buildCountryLines(world, radius);
+
+    countryLinesMemoryCache = lines;
+    try {
+      localStorage.setItem(
+        WORLD_ATLAS_STORAGE_KEY,
+        JSON.stringify({ radius, lines })
+      );
+    } catch {
+      // storage full/unavailable — in-memory cache still helps this session
+    }
+    return lines;
+  })();
+
+  return countryLinesPromise;
+}
+
 // ---------- World Map ----------
 function WorldMap({ radius }: { radius: number }) {
-  const [countryLines, setCountryLines] = useState<
-    [number, number, number][][]
-  >([]);
+  const [countryLines, setCountryLines] = useState<CountryLines>(
+    () => countryLinesMemoryCache ?? []
+  );
 
   useEffect(() => {
-    const loadWorldData = async () => {
-      try {
-        const response = await fetch(
-          "https://cdn.jsdelivr.net/npm/world-atlas@2/countries-110m.json"
-        );
-        const world = await response.json();
-        const countries = feature(
-          world,
-          world.objects.countries
-        ) as unknown as GeoJSON.FeatureCollection;
-
-        const lines: [number, number, number][][] = [];
-
-        for (const feat of countries.features) {
-          const geom = feat.geometry;
-          let polygons: number[][][][] = [];
-
-          if (geom.type === "Polygon") {
-            polygons = [geom.coordinates as number[][][]];
-          } else if (geom.type === "MultiPolygon") {
-            polygons = geom.coordinates as number[][][][];
-          }
-
-          for (const polygon of polygons) {
-            for (const ring of polygon) {
-              const points: [number, number, number][] = [];
-              for (const coord of ring) {
-                points.push(
-                  latLngToVector3(coord[1], coord[0], radius + 0.01)
-                );
-              }
-              if (points.length > 1) {
-                lines.push(points);
-              }
-            }
-          }
-        }
-
-        setCountryLines(lines);
-      } catch (error) {
+    if (countryLinesMemoryCache) return;
+    let cancelled = false;
+    loadCountryLines(radius)
+      .then((lines) => {
+        if (!cancelled) setCountryLines(lines);
+      })
+      .catch((error) => {
         console.error("Failed to load world data:", error);
-      }
+      });
+    return () => {
+      cancelled = true;
     };
-
-    loadWorldData();
   }, [radius]);
 
   return (

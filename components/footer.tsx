@@ -1,7 +1,8 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Instagram, Heart } from "lucide-react";
+import { Instagram } from "lucide-react";
+import { images } from "@/lib/cloudinary";
 
 export function Footer() {
   const currentYear = new Date().getFullYear();
@@ -25,13 +26,11 @@ export function Footer() {
             <div className="flex items-center gap-2 mb-4">
               <div className="relative flex items-center justify-center w-10 h-10">
                 <div className="absolute inset-0 bg-primary/20 rounded-lg blur-md" />
-                <svg
-                  viewBox="0 0 32 32"
-                  className="relative w-8 h-8 text-primary"
-                  fill="currentColor"
-                >
-                  <path d="M16 4c-1.5 0-2.5 1-2.5 2.5v1.5h-2v-1c0-0.5-0.5-1-1-1s-1 0.5-1 1v1h-1c-1 0-2 1-2 2v2c0 1 1 2 2 2h1v8h-1c-1 0-2 1-2 2v2h18v-2c0-1-1-2-2-2h-1v-8h1c1 0 2-1 2-2v-2c0-1-1-2-2-2h-1v-1c0-0.5-0.5-1-1-1s-1 0.5-1 1v1h-2v-1.5c0-1.5-1-2.5-2.5-2.5z" />
-                </svg>
+                <img
+                  src={images.logo}
+                  alt="Minds in Motion"
+                  className="relative w-10 h-10 rounded-lg object-cover"
+                />
               </div>
               <span className="text-xl font-bold text-foreground">
                 Minds in Motion
