@@ -105,13 +105,24 @@ async function loadCountryLines(radius: number): Promise<CountryLines> {
 }
 
 // ---------- World Map ----------
-function WorldMap({ radius }: { radius: number }) {
+function WorldMap({
+  radius,
+  onLoaded,
+}: {
+  radius: number;
+  onLoaded?: () => void;
+}) {
   const [countryLines, setCountryLines] = useState<CountryLines>(
     () => countryLinesMemoryCache ?? []
   );
+  const onLoadedRef = useRef(onLoaded);
+  onLoadedRef.current = onLoaded;
 
   useEffect(() => {
-    if (countryLinesMemoryCache) return;
+    if (countryLinesMemoryCache) {
+      onLoadedRef.current?.();
+      return;
+    }
     let cancelled = false;
     loadCountryLines(radius)
       .then((lines) => {
@@ -119,6 +130,9 @@ function WorldMap({ radius }: { radius: number }) {
       })
       .catch((error) => {
         console.error("Failed to load world data:", error);
+      })
+      .finally(() => {
+        if (!cancelled) onLoadedRef.current?.();
       });
     return () => {
       cancelled = true;
@@ -416,8 +430,10 @@ function FlagMarker({ lat, lng, country, globeRadius }: FlagMarkerProps) {
 // ---------- Globe ----------
 function Globe({
   mousePosition,
+  onWorldMapLoaded,
 }: {
   mousePosition: { x: number; y: number };
+  onWorldMapLoaded?: () => void;
 }) {
   const globeRef = useRef<THREE.Group>(null);
   const gridRef = useRef<THREE.Group>(null);
@@ -523,7 +539,7 @@ function Globe({
       </group>
 
       {/* World map country outlines */}
-      <WorldMap radius={globeRadius} />
+      <WorldMap radius={globeRadius} onLoaded={onWorldMapLoaded} />
 
       {/* Outer glow sphere */}
       <Sphere args={[globeRadius + 0.05, 32, 32]}>
@@ -545,9 +561,30 @@ function Globe({
   );
 }
 
+// Mounts only once every Suspense-blocking resource inside the Canvas
+// (pawn OBJ, flag textures) has resolved — Canvas wraps its children in a
+// single shared <Suspense>, so this sibling's effect can't fire any earlier.
+function SuspenseReadySignal({ onReady }: { onReady: () => void }) {
+  useEffect(() => {
+    onReady();
+  }, [onReady]);
+  return null;
+}
+
 // ---------- Main Export ----------
 export function HeroGlobe() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 });
+  const suspenseReadyRef = useRef(false);
+  const worldMapReadyRef = useRef(false);
+  const signalledRef = useRef(false);
+
+  const maybeSignalReady = () => {
+    if (signalledRef.current) return;
+    if (suspenseReadyRef.current && worldMapReadyRef.current) {
+      signalledRef.current = true;
+      window.dispatchEvent(new Event("globe-ready"));
+    }
+  };
 
   const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const rect = e.currentTarget.getBoundingClientRect();
@@ -565,7 +602,6 @@ export function HeroGlobe() {
         camera={{ position: [0, 0, 5], fov: 45 }}
         dpr={[1, 1.5]}
         gl={{ antialias: true, alpha: true }}
-        onCreated={() => window.dispatchEvent(new Event("globe-ready"))}
       >
         <ambientLight intensity={1.2} />
         <pointLight position={[10, 10, 10]} intensity={1.5} color="#fff" />
@@ -577,9 +613,21 @@ export function HeroGlobe() {
           intensity={1}
           color="#fff"
         />
-        <Globe mousePosition={mousePosition} />
+        <Globe
+          mousePosition={mousePosition}
+          onWorldMapLoaded={() => {
+            worldMapReadyRef.current = true;
+            maybeSignalReady();
+          }}
+        />
         {/* Wireframe hand sits below the globe, outside the rotating group */}
         <WireframeHand globeRadius={1.5} />
+        <SuspenseReadySignal
+          onReady={() => {
+            suspenseReadyRef.current = true;
+            maybeSignalReady();
+          }}
+        />
       </Canvas>
     </div>
   );

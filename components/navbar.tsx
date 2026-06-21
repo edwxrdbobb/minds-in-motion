@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X } from "lucide-react";
+import { Menu, X, Swords } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { images } from "@/lib/cloudinary";
 
@@ -87,8 +87,16 @@ export function Navbar() {
               </motion.button>
             ))}
             <Button
+              variant="ghost"
+              onClick={() => router.push("/chess")}
+              className="ml-4 gap-2 text-muted-foreground hover:text-foreground hover:bg-secondary/50"
+            >
+              <Swords className="h-4 w-4" />
+              Play Chess
+            </Button>
+            <Button
               onClick={() => router.push("/checkout")}
-              className="ml-4 bg-primary text-primary-foreground hover:bg-primary/90"
+              className="bg-primary text-primary-foreground hover:bg-primary/90"
             >
               Get Involved
             </Button>
@@ -134,8 +142,19 @@ export function Navbar() {
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: navLinks.length * 0.05 }}
-                className="pt-4"
+                className="pt-4 space-y-2"
               >
+                <Button
+                  variant="outline"
+                  onClick={() => {
+                    setIsOpen(false);
+                    router.push("/chess");
+                  }}
+                  className="w-full gap-2"
+                >
+                  <Swords className="h-4 w-4" />
+                  Play Chess
+                </Button>
                 <Button
                   onClick={() => router.push("/checkout")}
                   className="w-full bg-primary text-primary-foreground hover:bg-primary/90"

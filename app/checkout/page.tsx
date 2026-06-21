@@ -15,7 +15,7 @@ import {
   useCheckout,
 } from "@stripe/react-stripe-js/checkout";
 
-const donationAmounts = [10, 25, 50, 100, 250];
+const donationAmounts = [5, 10, 25, 50, 100, 250];
 const steps = ["Amount", "Details", "Confirm"];
 
 const stagger = {
@@ -133,17 +133,44 @@ export default function CheckoutPage() {
   const [sessionConfig, setSessionConfig] = useState<{
     clientSecret: string;
     publishableKey: string;
+    sessionId: string;
   } | null>(null);
   const [sessionLoading, setSessionLoading] = useState(false);
   const [sessionError, setSessionError] = useState("");
+  const [successDetails, setSuccessDetails] = useState<{
+    amount: number;
+    currency: string;
+    email: string | null;
+  } | null>(null);
 
   const finalAmount = amount > 0 ? amount : Number(customAmount) || 0;
   const stepIndex = step === "form" ? 0 : step === "confirm" ? 1 : 2;
 
+  // Always pull the confirmed amount/currency/email from Stripe rather than
+  // trusting local state — a redirect-based payment method (3DS, etc.) fully
+  // reloads this page via return_url, which resets amount/customAmount back
+  // to their defaults and would otherwise show the wrong donation amount.
+  const loadSuccessDetails = async (sessionId: string) => {
+    try {
+      const res = await fetch(`/api/checkout-session?session_id=${sessionId}`);
+      const data = await res.json();
+      if (!res.ok || data.error || data.amountTotal == null) return;
+      setSuccessDetails({
+        amount: data.amountTotal / 100,
+        currency: data.currency,
+        email: data.email,
+      });
+    } catch {
+      // Leave successDetails as-is; the UI falls back to local state.
+    }
+  };
+
   // Handle return from 3DS / redirect-based payment methods
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
-    if (params.get("session_id")) {
+    const sid = params.get("session_id");
+    if (sid) {
+      loadSuccessDetails(sid);
       setStep("success");
     }
   }, []);
@@ -285,7 +312,7 @@ export default function CheckoutPage() {
                   <motion.div variants={stagger} initial="initial" animate="animate">
                     <motion.div variants={fadeUp}>
                       <Label className="text-sm font-semibold text-gray-900">Choose an amount</Label>
-                      <div className="grid grid-cols-3 sm:grid-cols-5 gap-2.5 mt-3">
+                      <div className="grid grid-cols-3 sm:grid-cols-6 gap-2.5 mt-3">
                         {donationAmounts.map((donationAmount) => (
                           <button
                             key={donationAmount}
@@ -445,7 +472,10 @@ export default function CheckoutPage() {
                   <PaymentForm
                     form={form}
                     finalAmount={finalAmount}
-                    onSuccess={() => setStep("success")}
+                    onSuccess={() => {
+                      loadSuccessDetails(sessionConfig.sessionId);
+                      setStep("success");
+                    }}
                     onBack={handleBack}
                   />
                 </CheckoutElementsProvider>
@@ -494,7 +524,16 @@ export default function CheckoutPage() {
                   transition={{ delay: 0.45 }}
                   className="text-gray-500 mb-1"
                 >
-                  Your donation of <strong className="text-gray-900">£{finalAmount}</strong> has been received.
+                  Your donation of{" "}
+                  <strong className="text-gray-900">
+                    {successDetails
+                      ? new Intl.NumberFormat(undefined, {
+                          style: "currency",
+                          currency: successDetails.currency.toUpperCase(),
+                        }).format(successDetails.amount)
+                      : `£${finalAmount}`}
+                  </strong>{" "}
+                  has been received.
                 </motion.p>
                 <motion.p
                   initial={{ opacity: 0, y: 10 }}
@@ -502,7 +541,7 @@ export default function CheckoutPage() {
                   transition={{ delay: 0.55 }}
                   className="text-gray-400 text-sm mb-10"
                 >
-                  A confirmation receipt has been sent to {form.email}.
+                  A confirmation receipt has been sent to {successDetails?.email || form.email}.
                 </motion.p>
 
                 <motion.div

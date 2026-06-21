@@ -4,6 +4,15 @@ import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { images } from "@/lib/cloudinary";
 
+// Lets other components (e.g. on-page counters) wait until the splash has
+// actually finished, since they mount underneath it and would otherwise run
+// their entrance animations while still hidden behind the overlay.
+export const PAGE_PRELOADER_DONE_EVENT = "page-preloader-done";
+let pagePreloaderDone = false;
+export function isPagePreloaderDone() {
+  return pagePreloaderDone;
+}
+
 export function PagePreloader() {
   const [visible, setVisible] = useState(true);
 
@@ -16,7 +25,11 @@ export function PagePreloader() {
       setTimeout(resolve, 6000);
     });
 
-    Promise.all([minDelay, globeReady]).then(() => setVisible(false));
+    Promise.all([minDelay, globeReady]).then(() => {
+      pagePreloaderDone = true;
+      window.dispatchEvent(new Event(PAGE_PRELOADER_DONE_EVENT));
+      setVisible(false);
+    });
   }, []);
 
   return (

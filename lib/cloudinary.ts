@@ -20,9 +20,6 @@ export const images = {
   placeholderLogoSvg: cloudinaryUrl("v1781012080/placeholder-logo.svg"),
   placeholderUser: cloudinaryUrl("v1781012082/placeholder-user.jpg"),
 
-  nepalChessOutdoorCircle: cloudinaryUrl("v1782002139/nepal-chess-outdoor-circle.png"),
-  nepalChessStudentSmiling: cloudinaryUrl("v1782002177/nepal-chess-student-smiling.png"),
-
   "682105336_18094481158914914_7793339273851575831_n": cloudinaryUrl("v1781012069/682105336_18094481158914914_7793339273851575831_n..jpg"),
   "671798408_18094274920914914_9077263091752714258_n": cloudinaryUrl("v1781012068/671798408_18094274920914914_9077263091752714258_n..jpg"),
   "683602965_18095464537914914_8037810932371650682_n": cloudinaryUrl("v1781012070/683602965_18095464537914914_8037810932371650682_n..jpg"),

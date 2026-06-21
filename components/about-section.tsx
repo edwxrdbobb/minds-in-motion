@@ -139,14 +139,14 @@ export function AboutSection() {
                   </div>
                   <div className="overflow-hidden rounded-2xl">
                     <img
-                      src={images["682105336_18094481158914914_7793339273851575831_n"]}
+                      src={images["SnapInsta.to_713903421_18103298410914914_2492021928359226978_n"]}
                       alt="Nepal chess program"
                       className="w-full h-28 sm:h-36 object-cover hover:scale-105 transition-transform duration-500"
                     />
                   </div>
                   <div className="overflow-hidden rounded-2xl">
                     <img
-                      src={images["SnapInsta.to_683602965_18095464537914914_8037810932371650682_n"]}
+                      src={images["SnapInsta.to_684518500_18096565441914914_7294225183507457160_n"]}
                       alt="Children playing chess"
                       className="w-full h-28 sm:h-36 object-cover hover:scale-105 transition-transform duration-500"
                     />

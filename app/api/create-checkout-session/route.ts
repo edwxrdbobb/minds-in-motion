@@ -40,6 +40,7 @@ export async function POST(request: Request) {
     return NextResponse.json({
       clientSecret: session.client_secret,
       publishableKey: process.env.STRIPE_PUBLISHABLE_KEY,
+      sessionId: session.id,
     });
   } catch (err) {
     console.error("Stripe error:", err);
