@@ -22,7 +22,7 @@ const cards = [
       "From school chess clubs to community workshops, we provide equipment, training, and ongoing support for sustainable impact.",
     icon: Lightbulb,
     gradient: "from-accent/20 to-accent/5",
-    link: "#contact",
+    link: "#our-programs",
   },
   {
     id: "team",

@@ -105,6 +105,21 @@ async function loadCountryLines(radius: number): Promise<CountryLines> {
 }
 
 // ---------- World Map ----------
+// Each country ring used to render as its own drei <Line> (its own draw
+// call, its own fat-line shader instance) — with ~600+ rings in the 110m
+// atlas that was 600+ draw calls every frame just for borders. Flattening
+// every ring into one disconnected-segment list lets a single merged
+// LineSegments2 draw the whole map in one call.
+function ringsToSegments(rings: CountryLines): [number, number, number][] {
+  const segments: [number, number, number][] = [];
+  for (const ring of rings) {
+    for (let i = 0; i < ring.length - 1; i++) {
+      segments.push(ring[i], ring[i + 1]);
+    }
+  }
+  return segments;
+}
+
 function WorldMap({
   radius,
   onLoaded,
@@ -139,19 +154,19 @@ function WorldMap({
     };
   }, [radius]);
 
+  const segments = useMemo(() => ringsToSegments(countryLines), [countryLines]);
+
+  if (segments.length === 0) return null;
+
   return (
-    <group>
-      {countryLines.map((points, i) => (
-        <Line
-          key={i}
-          points={points}
-          color="#ffffff"
-          lineWidth={0.8}
-          opacity={0.6}
-          transparent
-        />
-      ))}
-    </group>
+    <Line
+      segments
+      points={segments}
+      color="#ffffff"
+      lineWidth={0.8}
+      opacity={0.6}
+      transparent
+    />
   );
 }
 
@@ -232,107 +247,6 @@ function mergeBufferGeometries(
   result.setAttribute("normal", new THREE.BufferAttribute(normals, 3));
   result.setAttribute("uv", new THREE.BufferAttribute(uvs, 2));
   return result;
-}
-
-// ---------- Wireframe Hand ----------
-function WireframeHand({ globeRadius }: { globeRadius: number }) {
-  const handLines = useMemo(() => {
-    const r = globeRadius;
-    const lines: [number, number, number][][] = [];
-
-    // Palm curve — cupping below the globe
-    const palmPoints: [number, number, number][] = [];
-    for (let i = 0; i <= 30; i++) {
-      const t = (i / 30) * Math.PI;
-      const x = Math.cos(t) * r * 1.15;
-      const y = -Math.sin(t) * r * 0.5 - r * 0.85;
-      const z = 0;
-      palmPoints.push([x, y, z]);
-    }
-    lines.push(palmPoints);
-
-    // Inner palm arc (slightly smaller)
-    const innerPalm: [number, number, number][] = [];
-    for (let i = 0; i <= 30; i++) {
-      const t = (i / 30) * Math.PI;
-      const x = Math.cos(t) * r * 0.95;
-      const y = -Math.sin(t) * r * 0.35 - r * 0.95;
-      const z = 0;
-      innerPalm.push([x, y, z]);
-    }
-    lines.push(innerPalm);
-
-    // Fingers extending from the palm edges
-    const fingerConfigs = [
-      { startT: 0.08, len: 0.55, curl: 0.4, side: 1 },   // thumb
-      { startT: 0.2, len: 0.5, curl: 0.6, side: 1 },     // index
-      { startT: 0.35, len: 0.55, curl: 0.65, side: 1 },   // middle
-      { startT: 0.65, len: 0.5, curl: 0.65, side: -1 },   // ring
-      { startT: 0.8, len: 0.4, curl: 0.6, side: -1 },     // pinky
-    ];
-
-    for (const finger of fingerConfigs) {
-      const t0 = finger.startT * Math.PI;
-      const baseX = Math.cos(t0) * r * 1.15;
-      const baseY = -Math.sin(t0) * r * 0.5 - r * 0.85;
-
-      const fingerPts: [number, number, number][] = [];
-      const segments = 10;
-
-      for (let j = 0; j <= segments; j++) {
-        const frac = j / segments;
-        const angle = t0 + frac * finger.curl * finger.side;
-        const extensionR = r * 1.15 + frac * r * finger.len;
-        const x = Math.cos(angle) * extensionR * (1 - frac * 0.15);
-        const y =
-          baseY +
-          frac * r * finger.len * 0.8 * Math.sin(t0) +
-          frac * frac * r * 0.1;
-        const z = frac * 0.05;
-        fingerPts.push([x, y, z]);
-      }
-      lines.push(fingerPts);
-    }
-
-    // Wrist lines
-    const wristLeft: [number, number, number][] = [
-      [r * 1.15, -r * 0.85, 0],
-      [r * 1.1, -r * 1.5, 0],
-      [r * 0.9, -r * 1.8, 0],
-    ];
-    const wristRight: [number, number, number][] = [
-      [-r * 1.15, -r * 0.85, 0],
-      [-r * 1.1, -r * 1.5, 0],
-      [-r * 0.9, -r * 1.8, 0],
-    ];
-    lines.push(wristLeft);
-    lines.push(wristRight);
-
-    // Wrist connector
-    const wristBottom: [number, number, number][] = [
-      [r * 0.9, -r * 1.8, 0],
-      [0, -r * 1.9, 0],
-      [-r * 0.9, -r * 1.8, 0],
-    ];
-    lines.push(wristBottom);
-
-    return lines;
-  }, [globeRadius]);
-
-  return (
-    <group>
-      {handLines.map((points, i) => (
-        <Line
-          key={`hand-${i}`}
-          points={points}
-          color="#ffffff"
-          lineWidth={1}
-          opacity={0.7}
-          transparent
-        />
-      ))}
-    </group>
-  );
 }
 
 // ---------- Flag Marker ----------
@@ -441,8 +355,10 @@ function Globe({
 
   const globeRadius = 1.5;
 
-  const gridLines = useMemo(() => {
-    const lines: { start: THREE.Vector3; end: THREE.Vector3 }[] = [];
+  // Flat [start, end, start, end, ...] segment list so the whole grid (was
+  // 576 separate <Line> draw calls) renders as one merged LineSegments2.
+  const gridSegments = useMemo(() => {
+    const points: [number, number, number][] = [];
     const segments = 12;
 
     for (let i = 1; i < segments; i++) {
@@ -454,18 +370,18 @@ function Globe({
         const theta1 = (j / 32) * Math.PI * 2;
         const theta2 = ((j + 1) / 32) * Math.PI * 2;
 
-        lines.push({
-          start: new THREE.Vector3(
+        points.push(
+          [
             Math.cos(theta1) * ringRadius,
             y,
-            Math.sin(theta1) * ringRadius
-          ),
-          end: new THREE.Vector3(
+            Math.sin(theta1) * ringRadius,
+          ],
+          [
             Math.cos(theta2) * ringRadius,
             y,
-            Math.sin(theta2) * ringRadius
-          ),
-        });
+            Math.sin(theta2) * ringRadius,
+          ]
+        );
       }
     }
 
@@ -476,22 +392,22 @@ function Globe({
         const phi1 = (j / 16) * Math.PI;
         const phi2 = ((j + 1) / 16) * Math.PI;
 
-        lines.push({
-          start: new THREE.Vector3(
+        points.push(
+          [
             Math.sin(phi1) * Math.cos(theta) * globeRadius,
             Math.cos(phi1) * globeRadius,
-            Math.sin(phi1) * Math.sin(theta) * globeRadius
-          ),
-          end: new THREE.Vector3(
+            Math.sin(phi1) * Math.sin(theta) * globeRadius,
+          ],
+          [
             Math.sin(phi2) * Math.cos(theta) * globeRadius,
             Math.cos(phi2) * globeRadius,
-            Math.sin(phi2) * Math.sin(theta) * globeRadius
-          ),
-        });
+            Math.sin(phi2) * Math.sin(theta) * globeRadius,
+          ]
+        );
       }
     }
 
-    return lines;
+    return points;
   }, [globeRadius]);
 
   useFrame((_, delta) => {
@@ -523,19 +439,14 @@ function Globe({
 
       {/* Lat/lng grid lines */}
       <group ref={gridRef}>
-        {gridLines.map((line, i) => (
-          <Line
-            key={i}
-            points={[
-              line.start.toArray() as [number, number, number],
-              line.end.toArray() as [number, number, number],
-            ]}
-            color="#ffffff"
-            lineWidth={0.5}
-            opacity={1}
-            transparent={false}
-          />
-        ))}
+        <Line
+          segments
+          points={gridSegments}
+          color="#ffffff"
+          lineWidth={0.5}
+          opacity={1}
+          transparent={false}
+        />
       </group>
 
       {/* World map country outlines */}
@@ -577,6 +488,22 @@ export function HeroGlobe() {
   const suspenseReadyRef = useRef(false);
   const worldMapReadyRef = useRef(false);
   const signalledRef = useRef(false);
+  const containerRef = useRef<HTMLDivElement>(null);
+  // Globe keeps rotating + rendering even once the user has scrolled past
+  // it, burning a draw call budget on every frame for nothing visible.
+  // Stop the Canvas's frameloop entirely while it's off-screen.
+  const [isVisible, setIsVisible] = useState(true);
+
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setIsVisible(entry.isIntersecting),
+      { threshold: 0 }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   const maybeSignalReady = () => {
     if (signalledRef.current) return;
@@ -595,6 +522,7 @@ export function HeroGlobe() {
 
   return (
     <div
+      ref={containerRef}
       className="w-full h-full min-h-[400px] md:min-h-[500px]"
       onMouseMove={handleMouseMove}
     >
@@ -602,6 +530,7 @@ export function HeroGlobe() {
         camera={{ position: [0, 0, 5], fov: 45 }}
         dpr={[1, 1.5]}
         gl={{ antialias: true, alpha: true }}
+        frameloop={isVisible ? "always" : "never"}
       >
         <ambientLight intensity={1.2} />
         <pointLight position={[10, 10, 10]} intensity={1.5} color="#fff" />
@@ -620,8 +549,6 @@ export function HeroGlobe() {
             maybeSignalReady();
           }}
         />
-        {/* Wireframe hand sits below the globe, outside the rotating group */}
-        <WireframeHand globeRadius={1.5} />
         <SuspenseReadySignal
           onReady={() => {
             suspenseReadyRef.current = true;

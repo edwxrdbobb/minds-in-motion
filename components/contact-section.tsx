@@ -102,11 +102,11 @@ export function ContactSection() {
   return (
     <section
       id="contact"
-      className="relative py-24 overflow-hidden bg-white"
+      className="relative py-24 overflow-hidden bg-black"
       style={{
-        "--cell-border-color": "#cbd5e1",
-        "--cell-fill-color": "#e2e8f0",
-        "--cell-shadow-color": "#94a3b8",
+        "--cell-border-color": "#404040",
+        "--cell-fill-color": "#171717",
+        "--cell-shadow-color": "#262626",
       } as React.CSSProperties}
     >
       <BackgroundRippleEffect rows={10} cols={35} cellSize={56} />
@@ -120,14 +120,14 @@ export function ContactSection() {
           viewport={{ once: true, margin: "-100px" }}
           className="text-center mb-16"
         >
-          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gray-100 border border-gray-200 mb-6">
-            <Mail className="w-4 h-4 text-gray-900" />
-            <span className="text-sm text-gray-600">Get In Touch</span>
+          <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/10 border border-white/20 mb-6">
+            <Mail className="w-4 h-4 text-white" />
+            <span className="text-sm text-white/80">Get In Touch</span>
           </div>
-          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 mb-4">
+          <h2 className="text-3xl sm:text-4xl font-bold text-white mb-4">
             Contact Us
           </h2>
-          <p className="text-lg text-gray-600 max-w-2xl mx-auto">
+          <p className="text-lg text-white/60 max-w-2xl mx-auto">
             Interested in partnering, volunteering, or supporting our mission?
             We&apos;d love to hear from you.
           </p>
@@ -141,20 +141,20 @@ export function ContactSection() {
             transition={{ duration: 0.6 }}
             viewport={{ once: true, margin: "-100px" }}
           >
-            <div className="bg-white/80 backdrop-blur-sm border border-gray-200 shadow-sm rounded-2xl p-5 sm:p-8">
+            <div className="bg-white/5 backdrop-blur-sm border border-white/10 shadow-sm rounded-2xl p-5 sm:p-8">
               {isSubmitted ? (
                 <motion.div
                   initial={{ opacity: 0, scale: 0.9 }}
                   animate={{ opacity: 1, scale: 1 }}
                   className="flex flex-col items-center justify-center py-12 text-center"
                 >
-                  <div className="w-16 h-16 rounded-full bg-gray-100 flex items-center justify-center mb-4">
-                    <CheckCircle2 className="w-8 h-8 text-gray-900" />
+                  <div className="w-16 h-16 rounded-full bg-white/10 flex items-center justify-center mb-4">
+                    <CheckCircle2 className="w-8 h-8 text-white" />
                   </div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-2">
+                  <h3 className="text-xl font-bold text-white mb-2">
                     Message Sent!
                   </h3>
-                  <p className="text-gray-600">
+                  <p className="text-white/60">
                     Thank you for reaching out. We&apos;ll get back to you soon.
                   </p>
                 </motion.div>
@@ -162,7 +162,7 @@ export function ContactSection() {
                 <form onSubmit={handleSubmit} className="space-y-6">
                   <div className="grid sm:grid-cols-2 gap-6">
                     <div className="space-y-2">
-                      <Label htmlFor="name" className="text-gray-900">
+                      <Label htmlFor="name" className="text-white">
                         Name
                       </Label>
                       <Input
@@ -171,7 +171,7 @@ export function ContactSection() {
                         value={formData.name}
                         onChange={handleChange}
                         placeholder="Your name"
-                        className={`bg-black border-gray-700 text-white placeholder:text-gray-500 focus:border-gray-400 ${
+                        className={`bg-white/5 border-white/15 text-white placeholder:text-white/40 focus:border-white/40 ${
                           errors.name ? "border-destructive" : ""
                         }`}
                       />
@@ -184,7 +184,7 @@ export function ContactSection() {
                     </div>
 
                     <div className="space-y-2">
-                      <Label htmlFor="email" className="text-gray-900">
+                      <Label htmlFor="email" className="text-white">
                         Email
                       </Label>
                       <Input
@@ -194,7 +194,7 @@ export function ContactSection() {
                         value={formData.email}
                         onChange={handleChange}
                         placeholder="your@email.com"
-                        className={`bg-black border-gray-700 text-white placeholder:text-gray-500 focus:border-gray-400 ${
+                        className={`bg-white/5 border-white/15 text-white placeholder:text-white/40 focus:border-white/40 ${
                           errors.email ? "border-destructive" : ""
                         }`}
                       />
@@ -208,7 +208,7 @@ export function ContactSection() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="subject" className="text-gray-900">
+                    <Label htmlFor="subject" className="text-white">
                       Subject
                     </Label>
                     <Input
@@ -217,7 +217,7 @@ export function ContactSection() {
                       value={formData.subject}
                       onChange={handleChange}
                       placeholder="How can we help?"
-                      className={`bg-black border-gray-700 text-white placeholder:text-gray-500 focus:border-gray-400 ${
+                      className={`bg-white/5 border-white/15 text-white placeholder:text-white/40 focus:border-white/40 ${
                         errors.subject ? "border-destructive" : ""
                       }`}
                     />
@@ -230,7 +230,7 @@ export function ContactSection() {
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="message" className="text-gray-900">
+                    <Label htmlFor="message" className="text-white">
                       Message
                     </Label>
                     <Textarea
@@ -241,7 +241,7 @@ export function ContactSection() {
                       placeholder="Tell us more about your inquiry..."
                       rows={4}
                       suppressHydrationWarning
-                      className={`bg-black border-gray-700 text-white placeholder:text-gray-500 focus:border-gray-400 resize-none ${
+                      className={`bg-white/5 border-white/15 text-white placeholder:text-white/40 focus:border-white/40 resize-none ${
                         errors.message ? "border-destructive" : ""
                       }`}
                     />
@@ -264,7 +264,7 @@ export function ContactSection() {
                     type="submit"
                     size="lg"
                     disabled={isLoading}
-                    className="w-full bg-gray-900 text-white hover:bg-gray-800 disabled:opacity-60"
+                    className="w-full bg-white text-black hover:bg-white/90 disabled:opacity-60"
                   >
                     {isLoading ? (
                       <>
@@ -293,10 +293,10 @@ export function ContactSection() {
           >
             <div className="space-y-8">
               <div>
-                <h3 className="text-xl font-bold text-gray-900 mb-4">
+                <h3 className="text-xl font-bold text-white mb-4">
                   Let&apos;s Connect
                 </h3>
-                <p className="text-gray-600 leading-relaxed">
+                <p className="text-white/60 leading-relaxed">
                   Whether you want to donate chessboards, volunteer your time,
                   partner with us on a program, or simply learn more about our
                   work, we&apos;re here to answer your questions.
@@ -309,17 +309,17 @@ export function ContactSection() {
                   href="https://instagram.com/minds.in.motion.global"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="flex items-center gap-4 p-4 rounded-xl bg-gray-100 hover:bg-gray-200 transition-colors group"
+                  className="flex items-center gap-4 p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-colors group"
                   whileHover={{ x: 5 }}
                 >
-                  <div className="w-12 h-12 rounded-xl bg-gray-200 flex items-center justify-center">
-                    <Instagram className="w-6 h-6 text-gray-900" />
+                  <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center">
+                    <Instagram className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <div className="font-medium text-gray-900 group-hover:text-gray-700 transition-colors">
+                    <div className="font-medium text-white group-hover:text-white/80 transition-colors">
                       @minds.in.motion.global
                     </div>
-                    <div className="text-sm text-gray-600">
+                    <div className="text-sm text-white/50">
                       Follow us on Instagram
                     </div>
                   </div>
@@ -327,17 +327,17 @@ export function ContactSection() {
 
                 <motion.a
                   href="mailto:greg@mindsinmotionglobal.org"
-                  className="flex items-center gap-4 p-4 rounded-xl bg-gray-100 hover:bg-gray-200 transition-colors group"
+                  className="flex items-center gap-4 p-4 rounded-xl bg-white/5 hover:bg-white/10 transition-colors group"
                   whileHover={{ x: 5 }}
                 >
-                  <div className="w-12 h-12 rounded-xl bg-gray-200 flex items-center justify-center">
-                    <Mail className="w-6 h-6 text-gray-900" />
+                  <div className="w-12 h-12 rounded-xl bg-white/10 flex items-center justify-center">
+                    <Mail className="w-6 h-6 text-white" />
                   </div>
                   <div>
-                    <div className="font-medium text-gray-900 group-hover:text-gray-700 transition-colors">
+                    <div className="font-medium text-white group-hover:text-white/80 transition-colors">
                       greg@mindsinmotionglobal.org
                     </div>
-                    <div className="text-sm text-gray-600">
+                    <div className="text-sm text-white/50">
                       Send us an email
                     </div>
                   </div>
@@ -345,13 +345,13 @@ export function ContactSection() {
               </div>
 
               {/* Quote */}
-              <div className="pt-6 border-t border-border">
-                <blockquote className="text-muted-foreground italic">
+              <div className="pt-6 border-t border-white/10">
+                <blockquote className="text-white/60 italic">
                   &quot;The beauty of chess is that it can be whatever you want
                   it to be. It transcends language, and so does the passion
                   behind our mission.&quot;
                 </blockquote>
-                <p className="text-sm text-primary mt-2">— Minds in Motion Team</p>
+                <p className="text-sm text-white/70 mt-2">— Minds in Motion Team</p>
               </div>
             </div>
           </motion.div>

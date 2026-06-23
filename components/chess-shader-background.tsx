@@ -45,6 +45,16 @@ export function ChessShaderBackground({ className = "" }: ChessShaderBackgroundP
     const onVisChange = () => { hidden = document.hidden; };
     document.addEventListener("visibilitychange", onVisChange);
 
+    // Once the hero scrolls out of view this canvas is invisible but kept
+    // drawing 30 fps of gradients/path fills on the main thread — stop
+    // entirely while off-screen instead of just when the tab is hidden.
+    let offscreen = false;
+    const intersectionObserver = new IntersectionObserver(
+      ([entry]) => { offscreen = !entry.isIntersecting; },
+      { threshold: 0 }
+    );
+    intersectionObserver.observe(canvas);
+
     // Perspective floor parameters
     const FOCAL = 380;
     const CAM_H = 260;
@@ -65,7 +75,7 @@ export function ChessShaderBackground({ className = "" }: ChessShaderBackgroundP
 
     const draw = (time: number) => {
       animRef.current = requestAnimationFrame(draw);
-      if (hidden) return;
+      if (hidden || offscreen) return;
       const elapsed = time - lastDrawTime;
       if (elapsed < FRAME_INTERVAL) return;
       lastDrawTime = time - (elapsed % FRAME_INTERVAL);
@@ -196,6 +206,7 @@ export function ChessShaderBackground({ className = "" }: ChessShaderBackgroundP
     return () => {
       cancelAnimationFrame(animRef.current);
       observer.disconnect();
+      intersectionObserver.disconnect();
       window.removeEventListener("mousemove", handleMouseMove);
       document.removeEventListener("visibilitychange", onVisChange);
     };

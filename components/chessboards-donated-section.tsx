@@ -213,7 +213,7 @@ export function ChessboardsDonatedSection() {
           viewport={{ once: true, margin: "-100px" }}
           className="flex items-center justify-center gap-3"
         >
-          <SolariCounter target={201} />
+          <SolariCounter target={261} />
 
           {/* Plus sign */}
           <motion.span
