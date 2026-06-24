@@ -121,7 +121,7 @@ export function HeroSection() {
             >
               <div className="text-center">
                 <div className="text-2xl font-bold text-primary">
-                  <BoardsDonatedCounter to={201} delay={0.6} />
+                  <BoardsDonatedCounter to={261} delay={0.6} />
                 </div>
                 <div className="text-sm text-muted-foreground">
                   Boards Donated
@@ -134,7 +134,7 @@ export function HeroSection() {
               </div>
               <div className="w-px h-10 bg-border" />
               <div className="text-center">
-                <div className="text-2xl font-bold text-foreground">100+</div>
+                <div className="text-2xl font-bold text-foreground">400+</div>
                 <div className="text-sm text-muted-foreground">Youth Reached</div>
               </div>
             </motion.div>

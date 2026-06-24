@@ -9,7 +9,7 @@ import { FallingPattern } from "@/components/ui/falling-pattern";
 const programImages = [
   { src: images.programDetail1, alt: "Students in an interactive chess lesson" },
   { src: images.programDetail2, alt: "Teacher training session" },
-  { src: images.programDetail3, alt: "School chess club in action" },
+  { src: images.programDetail3, alt: "Students celebrating with their Minds in Motion chess set" },
 ];
 
 export function ProgramsDetailSection() {
@@ -56,6 +56,31 @@ export function ProgramsDetailSection() {
               We have had amazing feedback from the teachers and students so far
               and their enthusiasm for chess is infectious!
             </p>
+
+            {/* Testimonial quotes */}
+            <div className="mt-8 space-y-4">
+              <blockquote className="border-l-2 border-white/30 pl-5">
+                <p className="text-base sm:text-lg text-white/90 italic leading-relaxed">
+                  &ldquo;Learning and teaching chess to our students with the
+                  program has been an amazing experience. We have set up our
+                  first school chess club this week. It&apos;s great to see the
+                  students&apos; critical thinking improve with time!&rdquo;
+                </p>
+                <footer className="mt-2 text-sm text-white/60">
+                  &mdash; Teacher Mr Govinda
+                </footer>
+              </blockquote>
+
+              <blockquote className="border-l-2 border-white/30 pl-5">
+                <p className="text-base sm:text-lg text-white/90 italic leading-relaxed">
+                  &ldquo;Chess is the best! I play with my friends every week
+                  more than volleyball now.&rdquo;
+                </p>
+                <footer className="mt-2 text-sm text-white/60">
+                  &mdash; Student in Nepal
+                </footer>
+              </blockquote>
+            </div>
           </motion.div>
 
           {/* Right: 3 non-overlapping photos */}

@@ -19,7 +19,7 @@ export const images = {
   // "Our Programs" section photos
   programDetail1: cloudinaryUrl("v1781012102/SnapInsta.to_687434873_18098059855914914_1359652674294065630_n.jpg"),
   programDetail2: cloudinaryUrl("v1781012087/SnapInsta.to_670882656_18098877553914914_8322753557978272293_n.jpg"),
-  programDetail3: cloudinaryUrl("v1781012096/SnapInsta.to_685929804_18098059915914914_3282036877542199232_n.jpg"),
+  programDetail3: cloudinaryUrl("v1782314384/WhatsApp_Image_2026-06-23_at_23.14.48_aaprpx.jpg"),
 
   placeholderSvg: cloudinaryUrl("v1781012084/placeholder.svg"),
   placeholderLogo: cloudinaryUrl("v1781012079/placeholder-logo.png"),
