@@ -493,8 +493,14 @@ export function HeroGlobe() {
   // it, burning a draw call budget on every frame for nothing visible.
   // Stop the Canvas's frameloop entirely while it's off-screen.
   const [isVisible, setIsVisible] = useState(true);
+  // Only mount the Canvas after the component has mounted on the client, so
+  // react-three-fiber measures the container once it's actually laid out
+  // (and not mid-entrance-animation). Avoids the "loads small/offset then
+  // snaps to the right size/position a few seconds later" glitch.
+  const [mounted, setMounted] = useState(false);
 
   useEffect(() => {
+    setMounted(true);
     const el = containerRef.current;
     if (!el) return;
     const observer = new IntersectionObserver(
@@ -523,9 +529,10 @@ export function HeroGlobe() {
   return (
     <div
       ref={containerRef}
-      className="w-full h-full min-h-[400px] md:min-h-[500px]"
+      className="w-full h-full"
       onMouseMove={handleMouseMove}
     >
+      {mounted && (
       <Canvas
         camera={{ position: [0, 0, 5], fov: 45 }}
         dpr={[1, 1.5]}
@@ -556,6 +563,7 @@ export function HeroGlobe() {
           }}
         />
       </Canvas>
+      )}
     </div>
   );
 }

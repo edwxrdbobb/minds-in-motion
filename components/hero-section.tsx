@@ -141,9 +141,13 @@ export function HeroSection() {
           </motion.div>
 
           {/* Globe Visual */}
+          {/* Fade only — no scale transform here. A CSS scale on the canvas's
+              ancestor makes react-three-fiber measure the wrong size on mount
+              (it reads getBoundingClientRect), so the globe loaded small/offset
+              and snapped to its real size once it re-measured a few seconds in. */}
           <motion.div
-            initial={{ opacity: 0, scale: 0.8 }}
-            animate={{ opacity: 1, scale: 1 }}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
             transition={{ delay: 0.4, duration: 0.8, ease: "easeOut" }}
             className="relative order-first lg:order-last"
           >
